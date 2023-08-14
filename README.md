@@ -1,6 +1,9 @@
 # Intro
 This repo holds the files created for the Ensek Test
 
+# Document file formats
+Please note that word documents have been created via LibreOffice in a 'word 2007 365' format. There should be no issues but there may be formatting issues if viewed in MS word. 
+
 # Test Plan Creation
 
 I have created a Test Plan in the fromat of a mind map (very light weight). The Test Plan details my plan to target the 'Buy energy' web page (https://ensekautomationcandidatetest.azurewebsites.net/Energy/Buy)
@@ -29,3 +32,5 @@ To run from Git Bash:
 3. Launch Git Bash and install Newman by running the following command in GitBash: npm install -g newman.
 4. within Git Bash navigate to the directory where your Postman collection is saved.
 5. Run the following command in GitBash: newman run <collection-name>.json
+
+A bug report has been added covering the restful api testing.
