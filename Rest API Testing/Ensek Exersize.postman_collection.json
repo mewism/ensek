@@ -1,0 +1,505 @@
+{
+	"info": {
+		"_postman_id": "3946b511-2419-45d3-bf78-6339db04e485",
+		"name": "Ensek Exersize",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4891989"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Check if the response code is 200\r",
+							"if (pm.response.code === 200) {\r",
+							"    // Assert that a token has been returned\r",
+							"    pm.test(\"Confirm Response contains an access token\", function () {\r",
+							"        var accessToken = pm.response.json().access_token;\r",
+							"        pm.expect(accessToken).to.exist.and.to.be.a('string').and.to.have.lengthOf.above(0);\r",
+							"\r",
+							"        // Save the access token to a global variable\r",
+							"        pm.globals.set(\"accessToken\", accessToken);\r",
+							"    });\r",
+							"\r",
+							"    // Assert that a success message is returned\r",
+							"    pm.test(\"Confirm Message value is 'success'\", function () {\r",
+							"        pm.expect(pm.response.json().message).to.equal('Success');\r",
+							"    });\r",
+							"} else {\r",
+							"    // Fail the status test if the response code is not 200\r",
+							"    pm.test(\"Confirm Response status code is 200\", function () {\r",
+							"        pm.response.to.have.status(200);\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"test\",\r\n  \"password\": \"testing\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://qacandidatetest.ensek.io/ENSEK/login",
+					"protocol": "https",
+					"host": [
+						"qacandidatetest",
+						"ensek",
+						"io"
+					],
+					"path": [
+						"ENSEK",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reset",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const ResponseStatus = pm.response.code\r",
+							"\r",
+							"// Check if the response code is 200\r",
+							"if (ResponseStatus === 200) {\r",
+							"    // Assert that a success message is returned\r",
+							"    pm.test(\"Confirm Response status code is 200\", function () {\r",
+							"    });\r",
+							"    pm.test(\"Confirm Message value is 'success'\", function () {\r",
+							"        pm.expect(pm.response.json().message).to.equal('Success');\r",
+							"    });\r",
+							"} else {\r",
+							"    // Fail the status test if the response code is not 200\r",
+							"    pm.test(\"Confirm Response status code is 200\", function () {\r",
+							"        pm.response.to.have.status(200);\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://qacandidatetest.ensek.io/ENSEK/reset",
+					"protocol": "https",
+					"host": [
+						"qacandidatetest",
+						"ensek",
+						"io"
+					],
+					"path": [
+						"ENSEK",
+						"reset"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy 5 units of Gas",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Set response JSON to variable\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"// Verify response code 200\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Verify response message states the correct purchase and remaining values\r",
+							"\r",
+							"pm.test(\"Confirm 5 m³ Gas purchased\", function () {\r",
+							"    var response = pm.response.json();\r",
+							"    pm.expect(response.message).to.contain(\"purchased 5 m³\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Confirm 2995 units of Gas remaining\", function () {\r",
+							"    pm.expect(json.message).to.contain(\"2995 units remaining\");\r",
+							"});\r",
+							"\r",
+							"// Pull out the order id guid for future use >> set it to a global variable\r",
+							"const regex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;\r",
+							"const match = json.message.match(regex);\r",
+							"\r",
+							"if (match) {\r",
+							"    pm.globals.set(\"gasOrderId\", match[0]);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://qacandidatetest.ensek.io/ENSEK/buy/1/5",
+					"protocol": "https",
+					"host": [
+						"qacandidatetest",
+						"ensek",
+						"io"
+					],
+					"path": [
+						"ENSEK",
+						"buy",
+						"1",
+						"5"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy 5 units of Nuclear",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Set response JSON to variable\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"// Verify response code 200\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// verify that the response message is correct\r",
+							"\r",
+							"pm.test(\"Confirm no nuclear fuel to purchase\", function () {\r",
+							"    var response = pm.response.json();\r",
+							"    pm.expect(response.message).to.contain(\"There is no nuclear fuel to purchase!\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://qacandidatetest.ensek.io/ENSEK/buy/2/5",
+					"protocol": "https",
+					"host": [
+						"qacandidatetest",
+						"ensek",
+						"io"
+					],
+					"path": [
+						"ENSEK",
+						"buy",
+						"2",
+						"5"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy 5 units of Electric",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Set response JSON to variable\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"// Verify response code 200\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Verify response message states the correct purchase and remaining values\r",
+							"\r",
+							"pm.test(\"Confirm 5 kWh of electric purchased\", function () {\r",
+							"    var response = pm.response.json();\r",
+							"    pm.expect(response.message).to.contain(\"purchased 5 kWh\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Confirm 4317 units of electric remaining\", function () {\r",
+							"    pm.expect(json.message).to.contain(\"4317 units remaining\");\r",
+							"});\r",
+							"\r",
+							"// Pull out the order id guid for future use >> set it to a global variable\r",
+							"const regex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;\r",
+							"const match = json.message.match(regex);\r",
+							"\r",
+							"if (match) {\r",
+							"    pm.globals.set(\"electricOrderId\", match[0]);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://qacandidatetest.ensek.io/ENSEK/buy/3/5",
+					"protocol": "https",
+					"host": [
+						"qacandidatetest",
+						"ensek",
+						"io"
+					],
+					"path": [
+						"ENSEK",
+						"buy",
+						"3",
+						"5"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buy 5 units of Oil",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Set response JSON to variable\r",
+							"const json = pm.response.json();\r",
+							"\r",
+							"// Verify response code 200\r",
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Verify response message states the correct purchase and remaining values\r",
+							"\r",
+							"pm.test(\"Confirm 5 Litres of oil purchased\", function () {\r",
+							"    var response = pm.response.json();\r",
+							"    pm.expect(response.message).to.contain(\"purchased 5 Litres\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Confirm 15 units of oil remaining\", function () {\r",
+							"    pm.expect(json.message).to.contain(\"15 units remaining\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"// Pull out the order id guid for future use >> set it to a global variable\r",
+							"const regex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;\r",
+							"const match = json.message.match(regex);\r",
+							"\r",
+							"if (match) {\r",
+							"    pm.globals.set(\"oilOrderId\", match[0]);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "https://qacandidatetest.ensek.io/ENSEK/buy/4/5",
+					"protocol": "https",
+					"host": [
+						"qacandidatetest",
+						"ensek",
+						"io"
+					],
+					"path": [
+						"ENSEK",
+						"buy",
+						"4",
+						"5"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Orders: Validate energy purchases present",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Get the global variables\r",
+							"const gasOrderId = pm.globals.get('gasOrderId');\r",
+							"const electricOrderId = pm.globals.get('electricOrderId');\r",
+							"const oilOrderId = pm.globals.get('oilOrderId');\r",
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"// Verify status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Verify Gas order present, and order qty correct\r",
+							"pm.test(\"Verify that gas order is present and has quantity 5\",  function () {\r",
+							"    let found = false;\r",
+							"    for (var i = 0; i < jsonData.length; i++) {\r",
+							"        if (jsonData[i].id === gasOrderId) {\r",
+							"            console.log(gasOrderId)\r",
+							"            console.log(\"array item\" + jsonData[i].Id)\r",
+							"            pm.expect(jsonData[i].id).to.eq(gasOrderId);\r",
+							"            pm.expect(jsonData[i].fuel).to.eq(\"gas\");\r",
+							"            pm.expect(jsonData[i].quantity).to.eq(5);\r",
+							"            found = true;\r",
+							"            break;\r",
+							"        }\r",
+							"    }\r",
+							"    if (!found) {\r",
+							"        pm.expect.fail(\"Gas order with quantity 5 not found.\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Verify electric order present, and order qty correct\r",
+							"pm.test(\"Verify that electric order is present and has quantity 5\",  function () {\r",
+							"    let found = false;\r",
+							"    for (var i = 0; i < jsonData.length; i++) {\r",
+							"    if (jsonData[i].Id === electricOrderId) {\r",
+							"        pm.expect(jsonData[i].Id).to.eq(electricOrderId);\r",
+							"        pm.expect(jsonData[i].fuel).to.eq(\"Elec\");\r",
+							"        pm.expect(jsonData[i].quantity).to.eq(5);\r",
+							"        found = true;\r",
+							"        break;\r",
+							"    }\r",
+							"}\r",
+							"if (!found) {\r",
+							"        pm.expect.fail(\"Electric order with quantity 5 not found.\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// Verify oil order present, and order qty correct\r",
+							"pm.test(\"Verify that Oil Order is present and has quantity of 5\",  function () {\r",
+							"    let found = false;\r",
+							"    for (var i = 0; i < jsonData.length; i++) {\r",
+							"    if (jsonData[i].Id === oilOrderId) {\r",
+							"        pm.expect(jsonData[i].Id).to.eq(oilOrderId);\r",
+							"        pm.expect(jsonData[i].fuel).to.eq(\"Oil\");\r",
+							"        pm.expect(jsonData[i].quantity).to.eq(5)\r",
+							"        found = true;\r",
+							"        break;\r",
+							"    }\r",
+							"}\r",
+							"if (!found) {\r",
+							"        pm.expect.fail(\"Oil order with quantity 5 not found.\");\r",
+							"    }\r",
+							"});\r",
+							"\r",
+							"// verify that at least 5 items have 'time' values before today **does not take into acount UTC**\r",
+							"pm.test(\"Confirm 5 orders created before today\", function () {\r",
+							"    var currentDate = new Date();\r",
+							"    var validItemsCount = 0;\r",
+							"    for (var i = 0; i < jsonData.length; i++) {\r",
+							"        var itemTime = new Date(jsonData[i].time);\r",
+							"        if (itemTime < currentDate) {\r",
+							"            validItemsCount++;\r",
+							"        }\r",
+							"    }\r",
+							"    pm.expect(validItemsCount).to.eq(5);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://qacandidatetest.ensek.io/ENSEK/orders",
+					"protocol": "https",
+					"host": [
+						"qacandidatetest",
+						"ensek",
+						"io"
+					],
+					"path": [
+						"ENSEK",
+						"orders"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
